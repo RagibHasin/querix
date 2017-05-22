@@ -21,14 +21,44 @@ function assign(...args: any[]) { // .length of function is 2
   return to;
 }
 
+type MongoDBTypes =
+  1 | "double" |
+  2 | "string" |
+  3 | "object" |
+  4 | "array" |
+  5 | "binData" |
+  6 | "undefined" |
+  7 | "objectId" |
+  8 | "bool" |
+  9 | "date" |
+  10 | "null" |
+  11 | "regex" |
+  12 | "dbPointer" |
+  13 | "javascript" |
+  14 | "symbol" |
+  15 | "javascriptWithScope" |
+  16 | "int" |
+  17 | "timestamp" |
+  18 | "long" |
+  19 | "decimal" |
+  -1 | "minKey" |
+  127 | "maxKey"
+
 export class Query {
   private _conditions: any = {}
   private _path: string = ''
   /**
    * Create a new query object.
    */
-  static create(): Query {
-    return new Query()
+  static create(path?: string, value?: any): Query {
+    let Qx = new Query()
+    if (path !== undefined) {
+      if (value !== undefined)
+        Qx._conditions[path] = value
+      else
+        Qx._path = path
+    }
+    return Qx
   }
 
   private check(): void {
@@ -150,15 +180,18 @@ export class Query {
   // Elements
   ////////
 
-  exists(value: any): Query {
+  exists(value: boolean = true): Query {
     this.checkedSet({ '$exists': value })
     return this
   }
-  type(value: any): Query {
+  type(value: MongoDBTypes): Query {
     this.checkedSet({ '$type': value })
     return this
   }
-  //
+
+  ////////
+  // Evaluation
+  ////////
 
   mod(divisor: number, reaminder: number): Query {
     this.checkedSet({ '$mod': [divisor, reaminder] })
@@ -167,19 +200,27 @@ export class Query {
   regex(value: RegExp | string): Query {
     if (typeof value === 'string') {
       let split = value.split('/')
-      this.checkedSet({ '$regex': split[1], $options: split[3] })
+      this.checkedSet({ '$regex': split[1], $options: split[2] })
     }
     else
       this.checkedSet({ '$regex': value })
     return this
   }
-  text(value: string): Query {
-    this.checkedSet({ '$eq': value })
+  text(search: string, language?: string, caseSensitive?: boolean,
+    diacriticSensitive?: boolean): Query {
+    this.uncheckedSet({
+      '$text': {
+        $search: search,
+        $language: language,
+        $caseSensitive: caseSensitive,
+        $diacriticSensitive: diacriticSensitive
+      }
+    })
     return this
   }
 
   $where(value: (() => boolean) | string): Query {
-    this.checkedSet({ '$where': value })
+    this.uncheckedSet({ '$where': value })
     return this
   }
 

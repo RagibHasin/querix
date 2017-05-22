@@ -7,7 +7,12 @@
     "build": "tsc",
     "pretest": "npm run build",
     "prepublish": "npm run build",
-    "test": "mocha --opts test/mocha.opts dist/test"
+    "test": "mocha --opts test/mocha.opts dist/test",
+    "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --opts test/mocha.opts dist/test",
+    "postcoverage": "npm run coverage:remap:lcov",
+    "coverage:remap:lcov": "remap-istanbul -i coverage/coverage.json -o coverage/lcov.info -t lcovonly",
+    "coverage:remap:json": "remap-istanbul -i coverage/coverage.json -o coverage/coverage-ts.json",
+    "coverage:remap:html": "remap-istanbul -i coverage/coverage.json -o coverage/report -t html"
   },
   "author": "Muhammad Ragib Hasin <ragib.hsin@gmail.com>",
   "license": "MIT",
@@ -21,7 +26,9 @@
     "@types/mocha": "^2.2.41",
     "@types/source-map-support": "^0.2.28",
     "chai": "^3.5.0",
+    "istanbul": "^0.4.5",
     "mocha": "^3.4.1",
+    "remap-istanbul": "^0.9.5",
     "source-map-support": "^0.4.15",
     "typescript": "^2.3.2"
   }
