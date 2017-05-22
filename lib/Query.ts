@@ -1,3 +1,26 @@
+function assign(...args: any[]) { // .length of function is 2
+  'use strict';
+  if (args[0] == null) { // TypeError if undefined or null
+    throw new TypeError('Cannot convert undefined or null to object');
+  }
+
+  var to = Object(args[0]);
+
+  for (var index = 1; index < args.length; index++) {
+    var nextSource = args[index];
+
+    if (nextSource != null) { // Skip over if undefined or null
+      for (var nextKey in nextSource) {
+        // Avoid bugs when hasOwnProperty is shadowed
+        if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+          to[nextKey] = nextSource[nextKey];
+        }
+      }
+    }
+  }
+  return to;
+}
+
 export class Query {
   private _conditions: any = {}
   private _path: string = ''
@@ -9,8 +32,20 @@ export class Query {
   }
 
   private check(): void {
-    if (this._path == '')
-      throw new Error('No path set for query operation')
+    if (this._conditions == {} && this._path == '')
+      throw new Error('No path set for root query operation')
+  }
+
+  private uncheckedSet(query: any): void {
+    if (this._path != '')
+      this._conditions[this._path] = assign({}, this._conditions[this._path], query)
+    else
+      this._conditions = query
+  }
+
+  private checkedSet(query: any): void {
+    this.check()
+    this._conditions[this._path] = assign({}, this._conditions[this._path], query)
   }
 
   /**
@@ -38,43 +73,35 @@ export class Query {
   ////////
 
   eq(value: any): Query {
-    this.check()
-    this._conditions[this._path] = { '$eq': value }
+    this.checkedSet({ '$eq': value })
     return this
   }
   gt(value: any): Query {
-    this.check()
-    this._conditions[this._path] = { '$gt': value }
+    this.uncheckedSet({ '$gt': value })
     return this
   }
   gte(value: any): Query {
-    this.check()
-    this._conditions[this._path] = { '$gte': value }
+    this.uncheckedSet({ '$gte': value })
     return this
   }
   lt(value: any): Query {
-    this.check()
-    this._conditions[this._path] = { '$lt': value }
+    this.uncheckedSet({ '$lt': value })
     return this
   }
   lte(value: any): Query {
-    this.check()
-    this._conditions[this._path] = { '$lte': value }
+    this.uncheckedSet({ '$lte': value })
     return this
   }
   ne(value: any): Query {
-    this.check()
-    this._conditions[this._path] = { '$ne': value }
+    this.checkedSet({ '$ne': value })
     return this
   }
   in(...value: any[]): Query {
-    this.check()
-    this._conditions[this._path] = { '$in': value }
+    this.checkedSet({ '$in': value })
     return this
   }
   nin(...value: any[]): Query {
-    this.check()
-    this._conditions[this._path] = { '$nin': value }
+    this.checkedSet({ '$nin': value })
     return this
   }
 
@@ -83,39 +110,39 @@ export class Query {
   //////////
 
   or(...values: any[]): Query {
-    this.check()
+    let temp: any[] = []
     for (let val of values) {
       if (val instanceof Query)
-        val = val.eval()
+        temp.push(val.eval())
+      else temp.push(val)
     }
-    this._conditions[this._path] = { '$or': values }
+    this.uncheckedSet({ '$or': temp })
     return this
   }
   and(...values: any[]): Query {
-    this.check()
+    let temp: any[] = []
     for (let val of values) {
       if (val instanceof Query)
-        val = val.eval()
+        temp.push(val.eval())
+      else temp.push(val)
     }
-    this._conditions[this._path] = { '$and': values }
+    this.uncheckedSet({ '$and': temp })
     return this
   }
-  not(...values: any[]): Query {
-    this.check()
-    for (let val of values) {
-      if (val instanceof Query)
-        val = val.eval()
-    }
-    this._conditions[this._path] = { '$not': values }
+  not(value: any): Query {
+    if (value instanceof Query)
+      this.uncheckedSet({ '$not': value.eval() })
+    else this.uncheckedSet({ '$not': value })
     return this
   }
   nor(...values: any[]): Query {
-    this.check()
+    let temp: any[] = []
     for (let val of values) {
       if (val instanceof Query)
-        val = val.eval()
+        temp.push(val.eval())
+      else temp.push(val)
     }
-    this._conditions[this._path] = { '$nor': values }
+    this.uncheckedSet({ '$nor': temp })
     return this
   }
 
@@ -124,41 +151,35 @@ export class Query {
   ////////
 
   exists(value: any): Query {
-    this.check()
-    this._conditions[this._path] = { '$exists': value }
+    this.checkedSet({ '$exists': value })
     return this
   }
   type(value: any): Query {
-    this.check()
-    this._conditions[this._path] = { '$type': value }
+    this.checkedSet({ '$type': value })
     return this
   }
   //
 
   mod(divisor: number, reaminder: number): Query {
-    this.check()
-    this._conditions[this._path] = { '$mod': [divisor, reaminder] }
+    this.checkedSet({ '$mod': [divisor, reaminder] })
     return this
   }
   regex(value: RegExp | string): Query {
-    this.check()
     if (typeof value === 'string') {
       let split = value.split('/')
-      this._conditions[this._path] = { '$regex': split[1], $options: split[3] }
+      this.checkedSet({ '$regex': split[1], $options: split[3] })
     }
     else
-      this._conditions[this._path] = { '$regex': value }
+      this.checkedSet({ '$regex': value })
     return this
   }
   text(value: string): Query {
-    this.check()
-    this._conditions[this._path] = { '$eq': value }
+    this.checkedSet({ '$eq': value })
     return this
   }
 
   $where(value: (() => boolean) | string): Query {
-    this.check()
-    this._conditions[this._path] = { '$where': value }
+    this.checkedSet({ '$where': value })
     return this
   }
 
@@ -167,18 +188,15 @@ export class Query {
   ////////
 
   geoWithin(value: GeoJSON.GeometryObject): Query {
-    this.check()
-    this._conditions[this._path] = { '$geoWithin': value }
+    this.checkedSet({ '$geoWithin': value })
     return this
   }
   geoIntersects(value: GeoJSON.GeometryObject): Query {
-    this.check()
-    this._conditions[this._path] = { '$geoIntersects': value }
+    this.checkedSet({ '$geoIntersects': value })
     return this
   }
   near(longitude: number, latitude: number, minDistance?: number, maxDistance?: number): Query {
-    this.check()
-    this._conditions[this._path] = {
+    this.checkedSet({
       '$near': {
         $geometry: {
           type: 'Point', coordinates: [longitude, latitude]
@@ -186,12 +204,11 @@ export class Query {
         $maxDistance: maxDistance,
         $minDistance: minDistance
       }
-    }
+    })
     return this
   }
   nearSphere(longitude: number, latitude: number, minDistance?: number, maxDistance?: number): Query {
-    this.check()
-    this._conditions[this._path] = {
+    this.checkedSet({
       '$nearSphere': {
         $geometry: {
           type: 'Point', coordinates: [longitude, latitude]
@@ -199,7 +216,7 @@ export class Query {
         $maxDistance: maxDistance,
         $minDistance: minDistance
       }
-    }
+    })
     return this
   }
 
@@ -208,18 +225,15 @@ export class Query {
   ////////
 
   all(...values: any[]): Query {
-    this.check()
-    this._conditions[this._path] = { '$all': values }
+    this.checkedSet({ '$all': values })
     return this
   }
   elemMatch(...values: any[]): Query {
-    this.check()
-    this._conditions[this._path] = { '$elemMatch': values }
+    this.checkedSet({ '$elemMatch': values })
     return this
   }
   size(value: number): Query {
-    this.check()
-    this._conditions[this._path] = { '$size': value }
+    this.checkedSet({ '$size': value })
     return this
   }
 
@@ -228,23 +242,19 @@ export class Query {
   ////////
 
   bitsAllSet(value: number | number[]): Query {
-    this.check()
-    this._conditions[this._path] = { '$bitsAllSet': value }
+    this.checkedSet({ '$bitsAllSet': value })
     return this
   }
   bitsAnySet(value: number | number[]): Query {
-    this.check()
-    this._conditions[this._path] = { '$bitsAnySet': value }
+    this.checkedSet({ '$bitsAnySet': value })
     return this
   }
   bitsAllClear(value: number | number[]): Query {
-    this.check()
-    this._conditions[this._path] = { '$bitsAllClear': value }
+    this.checkedSet({ '$bitsAllClear': value })
     return this
   }
   bitsAnyClear(value: number | number[]): Query {
-    this.check()
-    this._conditions[this._path] = { '$bitsAnyClear': value }
+    this.checkedSet({ '$bitsAnyClear': value })
     return this
   }
 
@@ -253,30 +263,28 @@ export class Query {
   ////////
 
   comment(value: any): Query {
-    this.check()
-    this._conditions[this._path] = { '$comment': value }
+    this.checkedSet({ '$comment': value })
     return this
   }
-  //Projection Operators
+
+  ////////
+  // Projection Operators
+  ////////
 
   $(value: any): Query {
-    this.check()
-    this._conditions[this._path] = { '$eq': value }
+    this.checkedSet({ '$eq': value })
     return this
   }
   $elemMatch(value: any): Query {
-    this.check()
-    this._conditions[this._path] = { '$eq': value }
+    this.checkedSet({ '$eq': value })
     return this
   }
   meta(value: any): Query {
-    this.check()
-    this._conditions[this._path] = { '$eq': value }
+    this.checkedSet({ '$eq': value })
     return this
   }
   slice(value: any): Query {
-    this.check()
-    this._conditions[this._path] = { '$eq': value }
+    this.checkedSet({ '$eq': value })
     return this
   }
 }

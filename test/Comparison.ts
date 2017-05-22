@@ -1,7 +1,7 @@
 import * as Qx from '../index'
 import * as chai from 'chai'
 
-describe('Query', () => {
+describe('Query#Comparison', () => {
 
   describe('$eq', () => {
     it('should be equal explicitly', () => {
