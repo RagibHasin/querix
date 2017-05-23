@@ -1,8 +1,12 @@
 {
   "name": "querix",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A module to build MongoDB queries easily",
   "main": "dist/index.js",
+  "typings": "dist/iridium.d.ts",
+  "engines": {
+    "node": ">= 0.10"
+  },
   "scripts": {
     "build": "tsc",
     "pretest": "npm run build",
@@ -26,6 +30,7 @@
     "@types/mocha": "^2.2.41",
     "@types/source-map-support": "^0.2.28",
     "chai": "^3.5.0",
+    "coveralls": "^2.13.1",
     "istanbul": "^0.4.5",
     "mocha": "^3.4.1",
     "remap-istanbul": "^0.9.5",

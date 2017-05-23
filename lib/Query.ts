@@ -21,7 +21,7 @@ function assign(...args: any[]) { // .length of function is 2
   return to;
 }
 
-type MongoDBTypes =
+export type MongoDBTypes =
   1 | "double" |
   2 | "string" |
   3 | "object" |
