@@ -1,9 +1,9 @@
 {
   "name": "querix",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A module to build MongoDB queries easily",
   "main": "dist/index.js",
-  "typings": "dist/iridium.d.ts",
+  "typings": "dist/index.d.ts",
   "engines": {
     "node": ">= 0.10"
   },
@@ -18,7 +18,7 @@
     "coverage:remap:json": "remap-istanbul -i coverage/coverage.json -o coverage/coverage-ts.json",
     "coverage:remap:html": "remap-istanbul -i coverage/coverage.json -o coverage/report -t html"
   },
-  "author": "Muhammad Ragib Hasin <ragib.hsin@gmail.com>",
+  "author": "Muhammad Ragib Hasin <ragib.hasin@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "@types/bson": "^1.0.3",
@@ -36,5 +36,11 @@
     "remap-istanbul": "^0.9.5",
     "source-map-support": "^0.4.15",
     "typescript": "^2.3.2"
-  }
+  },
+  "keywords": [
+    "mongodb",
+    "query",
+    "querix",
+    "proprocessing"
+  ]
 }

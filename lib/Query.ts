@@ -269,8 +269,11 @@ export class Query {
     this.checkedSet({ '$all': values })
     return this
   }
-  elemMatch(...values: any[]): Query {
-    this.checkedSet({ '$elemMatch': values })
+  elemMatch(query: Query | any): Query {
+    if (query instanceof Query)
+      this.checkedSet({ '$elemMatch': query.eval() })
+    else
+      this.checkedSet({ '$elemMatch': query })
     return this
   }
   size(value: number): Query {
