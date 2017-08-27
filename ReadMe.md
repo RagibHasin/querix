@@ -1,4 +1,6 @@
 # querix
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/RagibHasin/querix.svg)](https://greenkeeper.io/)
 **A simple query builder for MongoDB being influenced from [`mquery`](http://npmjs.com/package/mquery)**
 
 [![npm](https://img.shields.io/npm/v/querix.svg)](https://www.npmjs.com/package/querix)
