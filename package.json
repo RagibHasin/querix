@@ -29,7 +29,7 @@
     "@types/chai": "^4.0.4",
     "@types/mocha": "^2.2.41",
     "@types/source-map-support": "^0.4.0",
-    "chai": "^4.1.1",
+    "chai": "4.1.1",
     "coveralls": "^2.13.1",
     "istanbul": "^0.4.5",
     "mocha": "^3.4.1",
