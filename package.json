@@ -23,7 +23,7 @@
   "dependencies": {
     "@types/bson": "^1.0.3",
     "@types/geojson": "^1.0.2",
-    "@types/node": "^8.0.25"
+    "@types/node": "^8.0.34"
   },
   "devDependencies": {
     "@types/chai": "^4.0.4",
