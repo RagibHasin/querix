@@ -34,7 +34,7 @@
     "istanbul": "^0.4.5",
     "mocha": "^3.4.1",
     "remap-istanbul": "^0.9.5",
-    "source-map-support": "^0.4.15",
+    "source-map-support": "^0.5.4",
     "typescript": "^2.3.2"
   },
   "keywords": [
