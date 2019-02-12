@@ -21,7 +21,7 @@
   "author": "Muhammad Ragib Hasin <ragib.hasin@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@types/bson": "^1.0.3",
+    "@types/bson": "^4.0.0",
     "@types/geojson": "^1.0.2",
     "@types/node": "^8.0.25"
   },
